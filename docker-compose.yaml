@@ -1,0 +1,54 @@
+# Use root/example as user/password credentials
+version: '3.1'
+
+services:
+
+  mongo:
+    image: mongo
+    container_name: kwigo-mongo
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+
+  mongo-express:
+    image: mongo-express
+    container_name: kwigo-mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+
+  node:
+    image: bitnami/node
+    container_name: kwigo-backend
+    command: "sh -c 'npm install && node index.js'"
+    restart: always
+    environment:
+      - KWIGO=DOCKER
+    volumes:
+      - ./:/app
+    ports:
+      - 80:4000
+
+  redis:
+    image: 'bitnami/redis:latest'
+    container_name: kwigo-redis
+    restart: always
+    ports:
+      - '6379:6379'
+    environment:
+      - REDIS_PASSWORD=REDIS_PASSWORD
+
+  duckdns:
+     image: linuxserver/duckdns
+     container_name: duckdns
+     environment:
+       - TZ=Europe/Rome
+       - SUBDOMAINS=camus
+       - TOKEN=DUCK_DNS_TOKEN
+     restart: always
